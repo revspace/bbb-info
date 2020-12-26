@@ -1,0 +1,42 @@
+Arguments: 
+  /usr/bin/node /usr/bin/yarn add cheerio bhttp2
+
+PATH: 
+  /usr/local/sbin:/usr/local/bin:/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/home/f0x/bin:/home/f0x/.yarn/bin:/home/f0x/documents/projects/tamafoxi/software/ESP32-platform-firmware/xtensa-esp32-elf/bin:/home/f0x/.local/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  15.5.0
+
+Platform: 
+  linux x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/bhttp2: Not found
+      at Request.params.callback [as _callback] (/usr/lib/node_modules/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/lib/node_modules/yarn/lib/cli.js:140749:22)
+      at Request.emit (node:events:376:20)
+      at Request.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141721:10)
+      at Request.emit (node:events:376:20)
+      at IncomingMessage.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141643:12)
+      at Object.onceWrapper (node:events:482:28)
+      at IncomingMessage.emit (node:events:388:22)
+      at endReadableNT (node:internal/streams/readable:1305:12)
+      at processTicksAndRejections (node:internal/process/task_queues:80:21)
+
+npm manifest: 
+  {
+    "name": "bbb-info",
+    "version": "0.0.1",
+    "main": "index.js",
+    "author": "f0x",
+    "license": "AGPL-3.0"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

@@ -1,0 +1,15 @@
+{
+  "name": "bbb-info",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "f0x",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "bhttp": "^1.2.8",
+    "cheerio": "^1.0.0-rc.5"
+  },
+  "devDependencies": {
+    "@f0x52/eslint-config": "^1.0.1",
+    "eslint": "^7.16.0"
+  }
+}
