@@ -6,7 +6,12 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "bhttp": "^1.2.8",
-    "cheerio": "^1.0.0-rc.5"
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.0.0-rc.5",
+    "cookie": "^0.4.1",
+    "debounce": "^1.2.0",
+    "mqtt": "^4.2.6",
+    "sockjs-client": "^1.5.0"
   },
   "devDependencies": {
     "@f0x52/eslint-config": "^1.0.1",
