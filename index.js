@@ -52,10 +52,11 @@ Promise.try(() => {
 
 	sock.onopen = function() {
 		sock.send(JSON.stringify({"msg":"connect","version":"1","support":["1","pre2","pre1"]}));
-		sock.send(JSON.stringify({"msg":"sub","id":data.internalUserID,"name":"meteor_autoupdate_clientVersions","params":[]}));
+		// sock.send(JSON.stringify({"msg":"sub","id":data.internalUserID,"name":"meteor_autoupdate_clientVersions","params":[]}));
 		sock.send(JSON.stringify({"msg":"method","method":"userChangedLocalSettings","params":[{"application":{"animations":true,"chatAudioAlerts":false,"chatPushAlerts":false,"userJoinAudioAlerts":false,"userJoinPushAlerts":false,"fallbackLocale":"en","overrideLocale":null,"locale":"en","isRTL":false},"audio":{"inputDeviceId":"undefined","outputDeviceId":"undefined"},"dataSaving":{"viewParticipantsWebcams":true,"viewScreenshare":true}}],"id":id()}));
 		sock.send(JSON.stringify({"msg":"method","method":"validateAuthToken","params":authParams,"id":id()}));
-		sock.send(JSON.stringify({"msg":"sub","id":"aaaaaaaa","name":"users","params":[]}));
+		sock.send(JSON.stringify({"msg":"sub","id":"Unique_String_1","name":"users","params":[]}));
+		sock.send(JSON.stringify({"msg":"sub","id":"Unique_String_2","name":"ping-pong","params":[]}));
 	};
 
 	let users = new Map();
@@ -68,20 +69,25 @@ Promise.try(() => {
 			mqttClient.publish('revspace/b', size.toString(), {retain: true});
 			lastPublish = size;
 		}
+		console.log("users online", users.values());
 	}, 200);
 
 	sock.onmessage = function(e) {
 		let data = JSON.parse(e.data);
 		console.log(data);
 		if (data.collection == "users") {
-			if (data.fields.validated == false) {
+			if (data.fields.validated == false || data.fields.loggedOut == true) {
 				users.delete(data.id);
 			} else if (data.fields.name != undefined) {
 				users.set(data.id, data.fields.name);
 			}
 			debouncedUpdate();
 		} else if (data.collection == "ping-pong") {
+			console.log("sent pong");
 			sock.send(JSON.stringify({"msg":"method","method":"ping","params":[],"id":id()}));
+		} else if (data.msg == "ping") {
+			console.log("sent pong");
+			sock.send(JSON.stringify({"msg":"pong"}));
 		}
 	};
 }).catch((e) => {
