@@ -54,7 +54,6 @@ Promise.try(() => {
 		sock.send(JSON.stringify({"msg":"connect","version":"1","support":["1","pre2","pre1"]}));
 		sock.send(JSON.stringify({"msg":"sub","id":data.internalUserID,"name":"meteor_autoupdate_clientVersions","params":[]}));
 		sock.send(JSON.stringify({"msg":"method","method":"userChangedLocalSettings","params":[{"application":{"animations":true,"chatAudioAlerts":false,"chatPushAlerts":false,"userJoinAudioAlerts":false,"userJoinPushAlerts":false,"fallbackLocale":"en","overrideLocale":null,"locale":"en","isRTL":false},"audio":{"inputDeviceId":"undefined","outputDeviceId":"undefined"},"dataSaving":{"viewParticipantsWebcams":true,"viewScreenshare":true}}],"id":id()}));
-		sock.send(JSON.stringify({"msg":"method","method":"logClient","params":["info","Connection to Meteor took 2.05s","joinhandler_component_initial_connection_time",{"attemptForUserInfo":{},"timeToConnect":"2.05","clientURL":"https://meet.nluug.nl/html5client/join?sessionToken=8ar0wxa9u1mwqggw"}],"id":id()}));
 		sock.send(JSON.stringify({"msg":"method","method":"validateAuthToken","params":authParams,"id":id()}));
 		sock.send(JSON.stringify({"msg":"sub","id":"aaaaaaaa","name":"users","params":[]}));
 	};
