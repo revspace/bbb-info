@@ -12,7 +12,7 @@ const mqtt = require("mqtt");
 const { BBBurl } = require("./config");
 const BBBhost = urlLib.parse(BBBurl).host;
 
-const mqttClient = mqtt.connect("mqtt://test.mosquitto.org");
+const mqttClient = mqtt.connect("mqtt://mosquitto.space.revspace.nl");
 const session = bhttp.session({ headers: {"user-agent": "BigBlueButtonBot/0.0.1"} });
 
 Promise.try(() => {
@@ -41,6 +41,8 @@ Promise.try(() => {
 		cookies.guest_id
 	];
 
+	let lastPing = new Date().getTime();
+
 	let i=0;
 
 	function id() {
@@ -52,7 +54,6 @@ Promise.try(() => {
 
 	sock.onopen = function() {
 		sock.send(JSON.stringify({"msg":"connect","version":"1","support":["1","pre2","pre1"]}));
-		// sock.send(JSON.stringify({"msg":"sub","id":data.internalUserID,"name":"meteor_autoupdate_clientVersions","params":[]}));
 		sock.send(JSON.stringify({"msg":"method","method":"userChangedLocalSettings","params":[{"application":{"animations":true,"chatAudioAlerts":false,"chatPushAlerts":false,"userJoinAudioAlerts":false,"userJoinPushAlerts":false,"fallbackLocale":"en","overrideLocale":null,"locale":"en","isRTL":false},"audio":{"inputDeviceId":"undefined","outputDeviceId":"undefined"},"dataSaving":{"viewParticipantsWebcams":true,"viewScreenshare":true}}],"id":id()}));
 		sock.send(JSON.stringify({"msg":"method","method":"validateAuthToken","params":authParams,"id":id()}));
 		sock.send(JSON.stringify({"msg":"sub","id":"Unique_String_1","name":"users","params":[]}));
@@ -63,33 +64,78 @@ Promise.try(() => {
 	let lastPublish = undefined;
 
 	const debouncedUpdate = debounce(() => {
-		let size = users.size;
-		if (size != lastPublish)  {
-			console.log("publishing", size);
-			mqttClient.publish('revspace/b', size.toString(), {retain: true});
-			lastPublish = size;
+		let count = 0;
+		let onlineUsers = [];
+		users.forEach((a) => {
+			if (a.validated != false && a.validated != null && a.loggedOut != true) {
+				count += 1;
+				onlineUsers.push(a.name);
+			} else {
+				//console.log("non-connected user?", a);
+			}
+		});
+		if (count != lastPublish)  {
+			console.log("publishing", count);
+			mqttClient.publish('revspace/b', count.toString(), {retain: true});
+			lastPublish = count;
+			//console.log("all users");
+			//console.log(users);
 		}
-		console.log("users online", users.values());
+		console.log("users online", onlineUsers);
 	}, 200);
 
 	sock.onmessage = function(e) {
 		let data = JSON.parse(e.data);
-		console.log(data);
+		// console.log(data);
 		if (data.collection == "users") {
-			if (data.fields.validated == false || data.fields.loggedOut == true) {
+			if (data.msg == "added") {
+				users.set(data.id, data.fields);
+			} else if (data.msg == "changed") {
+				if (users.has(data.id)) { // should be the case
+					users.set(data.id, {
+						...users.get(data.id),
+						...data.fields
+					});
+				} else {
+					users.set(data.id, data.fields);
+				}
+			} else if (data.msg == "removed") {
 				users.delete(data.id);
-			} else if (data.fields.name != undefined) {
-				users.set(data.id, data.fields.name);
 			}
 			debouncedUpdate();
 		} else if (data.collection == "ping-pong") {
-			console.log("sent pong");
+			lastPing = new Date().getTime();
+			console.log("ping-pong");
 			sock.send(JSON.stringify({"msg":"method","method":"ping","params":[],"id":id()}));
 		} else if (data.msg == "ping") {
-			console.log("sent pong");
+			console.log("ping");
 			sock.send(JSON.stringify({"msg":"pong"}));
 		}
 	};
+
+	function checkLastPing() {
+		if (new Date().getTime() - lastPing > 30 * 1000) {
+			console.log("Exiting Due To Ping Timeout");
+			process.exit();
+		}
+		setTimeout(() => {
+			checkLastPing();
+		}, 1000);
+	}
+
+	checkLastPing();
+
+	// function exit() {
+	// 	console.log("exiting");
+	// 	sock.send(JSON.stringify({"msg":"method","method":"userLeftMeeting","params":[],"id":id()}));
+	// 	sock.close(1000);
+	// 	process.exit();
+	// }
+
+	// process.on('exit', exit);
+	// process.on('SIGINT', exit);
+	// process.on('SIGUSR1', exit);
+	// process.on('SIGUSR2', exit);
 }).catch((e) => {
 	console.error(e);
 });
