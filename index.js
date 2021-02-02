@@ -66,14 +66,22 @@ Promise.try(() => {
 	const debouncedUpdate = debounce(() => {
 		let count = 0;
 		let onlineUsers = [];
+		let stillInMeeting = false;
 		users.forEach((a) => {
 			if (a.validated != false && a.validated != null && a.loggedOut != true) {
 				count += 1;
 				onlineUsers.push(a.name);
+				if (a.userId == data.internalUserID) {
+					stillInMeeting = true;
+				}
 			} else {
 				//console.log("non-connected user?", a);
 			}
 		});
+		if (!stillInMeeting) {
+			console.log("Bot no longer in meeting!?!?!?, exiting");
+			process.exit();
+		}
 		if (count != lastPublish)  {
 			console.log("publishing", count);
 			mqttClient.publish('revspace/b', count.toString(), {retain: true});
