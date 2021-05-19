@@ -12,7 +12,13 @@ const mqtt = require("mqtt");
 const { BBBurl } = require("./config");
 const BBBhost = urlLib.parse(BBBurl).host;
 
-const mqttClient = mqtt.connect("mqtt://mosquitto.space.revspace.nl");
+const mqttClient = mqtt.connect("mqtt://mosquitto.space.revspace.nl", {
+	will: {
+		topic: "revspace/b",
+		payload: "E_BOT_STUK",
+		retain: true,
+	}
+});
 const session = bhttp.session({ headers: {"user-agent": "BigBlueButtonBot/0.0.1"} });
 
 Promise.try(() => {
